@@ -1,0 +1,3 @@
+" options {
+    let g:jamesattensure_bundle_groups=['go', "deoplete"]
+    " }

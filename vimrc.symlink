@@ -1,0 +1,369 @@
+" Use before {
+    if filereadable(expand("~/.vimrc.before"))
+        source ~/.vimrc.before
+    endif
+" }
+" Use plugins config {
+    if filereadable(expand("~/.vimrc.plugins"))
+        source ~/.vimrc.plugins
+    endif
+" }
+" General {
+    set mouse=a
+    filetype plugin indent on
+    syntax on
+	colorscheme purify
+    set mousehide
+
+    set hidden
+    set iskeyword-=.
+    set iskeyword-=#
+    set iskeyword-=-
+   
+    " http://vim.wikia.com/wiki/Restore_cursor_to_file_position_in_previous_editing_session
+    " Restore cursor to file position in previous editing session
+    function! ResCur()
+        if line("'\"") <= line("$")
+            silent! normal! g`"
+            return 1
+        endif
+    endfunction
+
+    augroup resCur
+        autocmd!
+        autocmd BufWinEnter * call ResCur()
+    augroup END
+
+    " Setting up the directories {
+        set backup                  " Backups are nice ...
+        if has('persistent_undo')
+            set undofile                " So is persistent undo ...
+            set undolevels=1000         " Maximum number of changes that can be undone
+            set undoreload=10000        " Maximum number lines to save for undo on a buffer reload
+        endif
+    " }
+" }
+" Vim UI {
+    set tabpagemax=15               " Only show 15 tabs
+    set showmode                    " Display the current mode
+
+    set cursorline                  " Highlight current line
+
+    highlight clear SignColumn      " SignColumn should match background
+    highlight clear LineNr          " Current line number row will have same background color in relative mode
+    "highlight clear CursorLineNr    " Remove highlight color from current line number
+
+    if has('cmdline_info')
+        set ruler                   " Show the ruler
+        set rulerformat=%30(%=\:b%n%y%m%r%w\ %l,%c%V\ %P%) " A ruler on steroids
+        set showcmd                 " Show partial commands in status line and
+                                    " Selected characters/lines in visual mode
+    endif
+
+    if has('statusline')
+        set laststatus=2
+
+        " Broken down into easily includeable segments
+        set statusline=%<%f\                     " Filename
+        set statusline+=%w%h%m%r                 " Options
+        set statusline+=\ [%{&ff}/%Y]            " Filetype
+        set statusline+=\ [%{getcwd()}]          " Current dir
+        set statusline+=%=%-14.(%l,%c%V%)\ %p%%  " Right aligned file nav info
+    endif
+
+    set backspace=indent,eol,start  " Backspace for dummies
+    set linespace=0                 " No extra spaces between rows
+    set number                      " Line numbers on
+    set showmatch                   " Show matching brackets/parenthesis
+    set incsearch                   " Find as you type search
+    set hlsearch                    " Highlight search terms
+    set winminheight=0              " Windows can be 0 line high
+    set ignorecase                  " Case insensitive search
+    set smartcase                   " Case sensitive when uc present
+    set wildmenu                    " Show list instead of just completing
+    set wildmode=list:longest,full  " Command <Tab> completion, list matches, then longest common part, then all.
+    set whichwrap=b,s,h,l,<,>,[,]   " Backspace and cursor keys wrap too
+    set scrolljump=5                " Lines to scroll when cursor leaves screen
+    set scrolloff=3                 " Minimum lines to keep above and below cursor
+    set foldenable                  " Auto fold code
+    set list
+    set listchars=tab:›\ ,trail:•,extends:#,nbsp:. " Highlight problematic whitespace
+" }
+" Formatting {
+
+    set nowrap                      " Do not wrap long lines
+    set autoindent                  " Indent at the same level of the previous line
+    set shiftwidth=4                " Use indents of 4 spaces
+    set expandtab                   " Tabs are spaces, not tabs
+    set tabstop=4                   " An indentation every four columns
+    set softtabstop=4               " Let backspace delete indent
+    set nojoinspaces                " Prevents inserting two spaces after punctuation on a join (J)
+    set splitright                  " Puts new vsplit windows to the right of the current
+    set splitbelow                  " Puts new split windows to the bottom of the current
+    "set matchpairs+=<:>             " Match, to be used with %
+    set pastetoggle=<F12>           " pastetoggle (sane indentation on pastes)
+    "set comments=sl:/*,mb:*,elx:*/  " auto format comment blocks
+    "autocmd FileType go autocmd BufWritePre <buffer> Fmt
+    autocmd BufNewFile,BufRead *.html.twig set filetype=html.twig
+    autocmd FileType haskell,puppet,ruby,yml setlocal expandtab shiftwidth=2 softtabstop=2
+    " preceding line best in a plugin but here for now.
+
+    autocmd BufNewFile,BufRead *.coffee set filetype=coffee
+
+    " Workaround vim-commentary for Haskell
+    autocmd FileType haskell setlocal commentstring=--\ %s
+    " Workaround broken colour highlighting in Haskell
+    autocmd FileType haskell,rust setlocal nospell
+
+" }
+
+" Key Mappings {
+    let mapleader = ','
+
+    noremap j gj
+    noremap k gk
+
+    " Shortcuts
+    " Change Working Directory to that of the current file
+    cmap cwd lcd %:p:h
+    cmap cd. lcd %:p:h
+
+    " Some helpers to edit mode
+    " http://vimcasts.org/e/14
+    cnoremap %% <C-R>=fnameescape(expand('%:h')).'/'<cr>
+    map <leader>ew :e %%
+    map <leader>es :sp %%
+    map <leader>ev :vsp %%
+    map <leader>et :tabe %%
+" }
+" Functions {
+
+    " Initialize directories {
+    function! InitializeDirectories()
+        let parent = $HOME
+        let prefix = 'vim'
+        let dir_list = {
+                    \ 'backup': 'backupdir',
+                    \ 'views': 'viewdir',
+                    \ 'swap': 'directory' }
+
+        if has('persistent_undo')
+            let dir_list['undo'] = 'undodir'
+        endif
+
+        " To specify a different directory in which to place the vimbackup,
+        " vimviews, vimundo, and vimswap files/directories, add the following to
+        " your .vimrc.before.local file:
+        "   let g:jamesattensure_consolidated_directory = <full path to desired directory>
+        "   eg: let g:jamesattensure_consolidated_directory = $HOME . '/.vim/'
+        if exists('g:jamesattensure_consolidated_directory')
+            let common_dir = g:jamesattensure_consolidated_directory . prefix
+        else
+            let common_dir = parent . '/.' . prefix
+        endif
+
+        for [dirname, settingname] in items(dir_list)
+            let directory = common_dir . dirname . '/'
+            if exists("*mkdir")
+                if !isdirectory(directory)
+                    call mkdir(directory)
+                endif
+            endif
+            if !isdirectory(directory)
+                echo "Warning: Unable to create backup directory: " . directory
+                echo "Try: mkdir -p " . directory
+            else
+                let directory = substitute(directory, " ", "\\\\ ", "g")
+                exec "set " . settingname . "=" . directory
+            endif
+        endfor
+    endfunction
+    call InitializeDirectories()
+    " }
+" }
+" Plugins {
+    " GoLang {
+        if isdirectory(expand("~/.vim/plugged/vim-go"))
+            let g:go_highlight_functions = 1
+            let g:go_highlight_methods = 1
+            let g:go_highlight_structs = 1
+            let g:go_highlight_operators = 1
+            let g:go_highlight_build_constraints = 1
+            let g:go_fmt_command = "goimports"
+            let g:syntastic_go_checkers = ['golint', 'govet', 'errcheck']
+            let g:syntastic_mode_map = { 'mode': 'active', 'passive_filetypes': ['go'] }
+            au FileType go nmap <Leader>s <Plug>(go-implements)
+            au FileType go nmap <Leader>i <Plug>(go-info)
+            au FileType go nmap <Leader>e <Plug>(go-rename)
+            au FileType go nmap <leader>r <Plug>(go-run)
+            au FileType go nmap <leader>b <Plug>(go-build)
+            au FileType go nmap <leader>t <Plug>(go-test)
+            au FileType go nmap <Leader>gd <Plug>(go-doc)
+            au FileType go nmap <Leader>gv <Plug>(go-doc-vertical)
+            au FileType go nmap <leader>co <Plug>(go-coverage)
+        endif
+    " }
+    " NerdTree {
+        if isdirectory(expand("~/.vim/plugged/nerdtree"))
+            map <C-e> <plug>NERDTreeTabsToggle<CR>
+            map <leader>e :NERDTreeFind<CR>
+            nmap <leader>nt :NERDTreeFind<CR>
+
+            let NERDTreeShowBookmarks=1
+            let NERDTreeIgnore=['\.py[cd]$', '\~$', '\.swo$', '\.swp$', '^\.git$', '^\.hg$', '^\.svn$', '\.bzr$']
+            let NERDTreeChDirMode=0
+            let NERDTreeQuitOnOpen=1
+            let NERDTreeMouseMode=2
+            let NERDTreeShowHidden=1
+            let NERDTreeKeepTreeInNewTab=1
+            let g:nerdtree_tabs_open_on_gui_startup=0
+        endif
+    " }
+    " Tabularize {
+        if isdirectory(expand("~/.vim/plugged/tabular"))
+            nmap <Leader>a& :Tabularize /&<CR>
+            vmap <Leader>a& :Tabularize /&<CR>
+            nmap <Leader>a= :Tabularize /^[^=]*\zs=<CR>
+            vmap <Leader>a= :Tabularize /^[^=]*\zs=<CR>
+            nmap <Leader>a=> :Tabularize /=><CR>
+            vmap <Leader>a=> :Tabularize /=><CR>
+            nmap <Leader>a: :Tabularize /:<CR>
+            vmap <Leader>a: :Tabularize /:<CR>
+            nmap <Leader>a:: :Tabularize /:\zs<CR>
+            vmap <Leader>a:: :Tabularize /:\zs<CR>
+            nmap <Leader>a, :Tabularize /,<CR>
+            vmap <Leader>a, :Tabularize /,<CR>
+            nmap <Leader>a,, :Tabularize /,\zs<CR>
+            vmap <Leader>a,, :Tabularize /,\zs<CR>
+            nmap <Leader>a<Bar> :Tabularize /<Bar><CR>
+            vmap <Leader>a<Bar> :Tabularize /<Bar><CR>
+        endif
+    " }
+    " PyMode {
+        " Disable if python support not present
+        if !has('python') && !has('python3')
+            let g:pymode = 0
+        endif
+
+        if isdirectory(expand("~/.vim/plugged/python-mode"))
+            let g:pymode_lint_checkers = ['pyflakes']
+            let g:pymode_trim_whitespaces = 0
+            let g:pymode_options = 0
+            let g:pymode_rope = 0
+        endif
+    " }
+    " Rainbow {
+        if isdirectory(expand("~/.vim/plugged/rainbow/"))
+            let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
+        endif
+    "}
+
+    " Fugitive {
+        if isdirectory(expand("~/.vim/plugged/vim-fugitive/"))
+            nnoremap <silent> <leader>gs :Gstatus<CR>
+            nnoremap <silent> <leader>gd :Gdiff<CR>
+            nnoremap <silent> <leader>gc :Gcommit<CR>
+            nnoremap <silent> <leader>gb :Gblame<CR>
+            nnoremap <silent> <leader>gl :Glog<CR>
+            nnoremap <silent> <leader>gp :Git push<CR>
+            nnoremap <silent> <leader>gr :Gread<CR>
+            nnoremap <silent> <leader>gw :Gwrite<CR>
+            nnoremap <silent> <leader>ge :Gedit<CR>
+            " Mnemonic _i_nteractive
+            nnoremap <silent> <leader>gi :Git add -p %<CR>
+            nnoremap <silent> <leader>gg :SignifyToggle<CR>
+        endif
+    "}
+" }
+" MarkdownPreview Config{
+    " set to 1, nvim will open the preview window after entering the markdown buffer
+    " default: 0
+    let g:mkdp_auto_start = 1
+    
+    " set to 1, the nvim will auto close current preview window when change
+    " from markdown buffer to another buffer
+    " default: 1
+    let g:mkdp_auto_close = 1
+    
+    " set to 1, the vim will refresh markdown when save the buffer or
+    " leave from insert mode, default 0 is auto refresh markdown as you edit or
+    " move the cursor
+    " default: 0
+    let g:mkdp_refresh_slow = 0
+    
+    " set to 1, the MarkdownPreview command can be use for all files,
+    " by default it can be use in markdown file
+    " default: 0
+    let g:mkdp_command_for_global = 0
+    
+    " set to 1, preview server available to others in your network
+    " by default, the server listens on localhost (127.0.0.1)
+    " default: 0
+    let g:mkdp_open_to_the_world = 0
+    
+    " use custom IP to open preview page
+    " useful when you work in remote vim and preview on local browser
+    " more detail see: https://github.com/iamcco/markdown-preview.nvim/pull/9
+    " default empty
+    let g:mkdp_open_ip = ''
+    
+    " specify browser to open preview page
+    " default: ''
+    let g:mkdp_browser = ''
+    
+    " set to 1, echo preview page url in command line when open preview page
+    " default is 0
+    let g:mkdp_echo_preview_url = 0
+    
+    " a custom vim function name to open preview page
+    " this function will receive url as param
+    " default is empty
+    let g:mkdp_browserfunc = ''
+    
+    " options for markdown render
+    " mkit: markdown-it options for render
+    " katex: katex options for math
+    " uml: markdown-it-plantuml options
+    " maid: mermaid options
+    " disable_sync_scroll: if disable sync scroll, default 0
+    " sync_scroll_type: 'middle', 'top' or 'relative', default value is 'middle'
+    "   middle: mean the cursor position alway show at the middle of the preview page
+    "   top: mean the vim top viewport alway show at the top of the preview page
+    "   relative: mean the cursor position alway show at the relative positon of the preview page
+    " hide_yaml_meta: if hide yaml metadata, default is 1
+    " sequence_diagrams: js-sequence-diagrams options
+    " content_editable: if enable content editable for preview page, default: v:false
+    " disable_filename: if disable filename header for preview page, default: 0
+    let g:mkdp_preview_options = {
+        \ 'mkit': {},
+        \ 'katex': {},
+        \ 'uml': {},
+        \ 'maid': {},
+        \ 'disable_sync_scroll': 0,
+        \ 'sync_scroll_type': 'middle',
+        \ 'hide_yaml_meta': 1,
+        \ 'sequence_diagrams': {},
+        \ 'flowchart_diagrams': {},
+        \ 'content_editable': v:false,
+        \ 'disable_filename': 0
+        \ }
+    
+    " use a custom markdown style must be absolute path
+    " like '/Users/username/markdown.css' or expand('~/markdown.css')
+    let g:mkdp_markdown_css = ''
+    
+    " use a custom highlight style must absolute path
+    " like '/Users/username/highlight.css' or expand('~/highlight.css')
+    let g:mkdp_highlight_css = ''
+    
+    " use a custom port to start server or random for empty
+    let g:mkdp_port = ''
+    
+    " preview page title
+    " ${name} will be replace with the file name
+    let g:mkdp_page_title = '「${name}」'
+    
+    " recognized filetypes
+    " these filetypes will have MarkdownPreview... commands
+    let g:mkdp_filetypes = ['markdown']
+" }
