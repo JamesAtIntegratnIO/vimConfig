@@ -114,7 +114,10 @@
     autocmd FileType haskell setlocal commentstring=--\ %s
     " Workaround broken colour highlighting in Haskell
     autocmd FileType haskell,rust setlocal nospell
-
+    augroup Markdown
+        autocmd!
+        autocmd FileType markdown set wrap textwidth=80
+    augroup end
 " }
 
 " Key Mappings {

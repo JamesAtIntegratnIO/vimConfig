@@ -1,4 +1,45 @@
-# Vim Install Guide
+# Vim with [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) support
+
+This vim setup is a very basic setup. Large portions were borrowed from [spf13-vim](https://github.com/spf13/spf13-vim/).
+
+### Some things baked into this project: 
+
+* [NerdTree](https://github.com/preservim/nerdtree) for file browsing
+* [Fugative](https://github.com/tpope/vim-fugitive) for git gutter and more
+* [vim-go](https://github.com/fatih/vim-go) provides all the formatting,
+linting, import, functionality
+* [tabularize](https://github.com/godlygeek/tabular) Auto tab aligning
+* [vim-rainbow](https://github.com/frazrepo/vim-rainbow) Its easier to follow
+  brackets when they aren't all the same color
+* [Conquer Of Code](https://github.com/neoclide/coc.nvim)
+for Language Server Protocol support (Think snippets and
+autocomplete)
+  * Language Servers supported so far
+    * Go
+    * Python
+    * Javascript
+    * Typescript
+    * Terraform
+    * Bash
+    * Docker
+    * Rust
+    * JSON
+    * Markdown
+    * Python
+  * Check out the [Language Server](https://github.com/neoclide/coc.nvim/wiki/Language-servers) Page for how to configure additional langage servers
+* There's a bunch of others. Check out `./vimrc.plugins.symlink` for the full list.
+
+## Vim Install Guide
+
+### Short instructions
+
+#### More testing needed
+
+Run this script. It works on Linux. Still have to test on Mac. I'm not
+supporting windows. Should work in WSL though.
+`./bootstrap.sh`
+
+### Long Instructions
 
 Install vim-nox
 link all vim files from dotfiles to $HOME
