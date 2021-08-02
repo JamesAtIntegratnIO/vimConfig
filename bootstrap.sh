@@ -162,6 +162,7 @@ install_vim_nox() {
 install_go_binaries() {
     vim +GoInstallBinaries +qall
 }
+
 install_coc_extensions() {
     vim +CocInstall\
         coc-json\
@@ -172,6 +173,9 @@ install_coc_extensions() {
 	+qall
     vim +call 'mkdp#util#install()'\
         +qall
+
+    local overwrite_all=true backup_all=false skip_all=false
+    link_file ./coc-settings.json $HOME/.vim/coc-settings.json
 }
 
 info "starting install"
