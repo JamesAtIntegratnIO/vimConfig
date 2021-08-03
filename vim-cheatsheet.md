@@ -23,10 +23,14 @@
 ### Less Safe Buffer Deletion
 
 ```
-:bw                         # completely deletes the current buffer, error if there are unwritten changes
-:bw!                        # completely deletes the current buffer, no error if unwritten changes
-:bufdo bw                   # completely deletes all buffers, stops at first error (unwritten changes)
-:bufdo! bw                  # completely deletes all buffers except those with unwritten changes
+:bw                         # completely deletes the current buffer,
+                            error if there are unwritten changes
+:bw!                        # completely deletes the current buffer, 
+                            no error if unwritten changes
+:bufdo bw                   # completely deletes all buffers, 
+                            stops at first error (unwritten changes)
+:bufdo! bw                  # completely deletes all buffers 
+                            except those with unwritten changes
 :bufdo! bw!                 # completely deletes all buffers, no error on any unwritten changes
 
 :set confirm                # confirm changes (Yes, No, Cancel) instead of error
