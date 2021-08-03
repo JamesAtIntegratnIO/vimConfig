@@ -35,6 +35,11 @@ autocomplete)
 
 #### More testing needed
 
+```go
+if (os.Type == mac){
+    fmt.Prinln("then install macvim yourself")
+} 
+```
 Run this script. It works on Linux. Still have to test on Mac. I'm not
 supporting windows. Should work in WSL though.
 `./bootstrap.sh`
