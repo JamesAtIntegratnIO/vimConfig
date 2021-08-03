@@ -139,20 +139,10 @@ install_vim_nox() {
 	    then YUM_CMD=$(which yum)
 	fi
     fi
-    if [[ ${machine} == "Mac" ]]
-    then
-	info "in machine == Mac"
-        BREW_CMD="$(which brew)"
-    fi
     if [[ ! -z ${APT_CMD} ]]
     then
         info 'using apt'
         sudo $APT_CMD install -y vim-nox
-    elif [[ ! -z ${BREW_CMD} ]]
-    then
-        $BREW_CMD install macvim
-        macPath=$(which macvim)
-        ln -s macPath /usr/local/bin/vim
     elif [[ ! -z ${YUM_CMD}  ]]
     then
         sudo $YUM_CMD install -y vim-nox
