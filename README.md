@@ -26,7 +26,7 @@ autocomplete)
     * JSON
     * Markdown
     * Python
-  * Check out the [Language Server](https://github.com/neoclide/coc.nvim/wiki/Language-servers) Page for how to configure additional langage servers
+  * Check the [Language Server](https://github.com/neoclide/coc.nvim/wiki/Language-servers) page for how to configure additional langage servers
 * There's a bunch of others. Check out `./vimrc.plugins.symlink` for the full list.
 
 ## Vim Install Guide
@@ -40,6 +40,7 @@ if (os.Type == mac){
     fmt.Prinln("then install macvim yourself")
 } 
 ```
+
 Run this script. It works on Linux. Still have to test on Mac. I'm not
 supporting windows. Should work in WSL though.
 `./bootstrap.sh`
