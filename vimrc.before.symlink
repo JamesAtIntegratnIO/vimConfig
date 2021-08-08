@@ -1,3 +1,8 @@
 " options {
     let g:jamesattensure_bundle_groups=['go', "deoplete"]
+    let g:_usepy = ':py3'
+    let g:python_host_prog='/usr/bin/python'
+    let g:python3_host_prog='/usr/bin/python'
+    if has('python3')
+	endif
     " }

@@ -65,4 +65,5 @@ Plug 'tpope/vim-haml'
 Plug 'mattn/emmet-vim'
 Plug 'rust-lang/rust.vim'
 Plug 'cespare/vim-toml'
+Plug 'wakatime/vim-wakatime'
 call plug#end()
